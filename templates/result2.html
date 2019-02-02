@@ -114,7 +114,7 @@ var svg = d3.select('#viz').append('svg')
 
 var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody().strength(-200))
-    .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(150))
+    .force("link", d3.forceLink().id(function(d) { return console.log(d.x); }))
     .force("x", d3.forceX(width / 2))
     .force("y", d3.forceY(height / 2))
     .on("tick", ticked);

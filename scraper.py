@@ -10,8 +10,9 @@ def hello():
 def scrape(queryKeyword):
 	locale.setlocale(locale.LC_ALL, "de_de")
 	#queryKeyword = "drogen"
-	queryRank = "1"
-	bgerQuery2 = 'https://www.bger.ch/ext/eurospider/live/de/php/clir/http/index.php?lang=de&type=simple_query&query_words='+ queryKeyword +'&lang=de&top_subcollection_clir=bge&from_year=1954&to_year=2019'
+	from_year = "2017"
+	to_year = "2019"
+	bgerQuery2 = 'https://www.bger.ch/ext/eurospider/live/de/php/clir/http/index.php?lang=de&type=simple_query&query_words='+ queryKeyword +'&lang=de&top_subcollection_clir=bge&from_year='+ from_year + '&to_year=' + to_year
 	bgerQuery2 = requests.get(bgerQuery2)
 	bgerSoup = BeautifulSoup(bgerQuery2.content, 'html.parser')
 

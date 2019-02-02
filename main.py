@@ -28,7 +28,7 @@ def hello():
     return 'Hello, another World'
 
 
-@app.route('/result',methods = ['POST', 'GET'])
+@app.route('/',methods = ['POST', 'GET'])
 def result():
 	if request.method == 'POST':
 		query = request.form.to_dict() 
