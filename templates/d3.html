@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Networkviz</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="./data.js"></script>
+</head>
+<style type="text/css">
+  #viz {
+    position:absolute;
+  }
+body {
+  font-family: 'Roboto', sans-serif;
+  background: "#FFFFF0";
+}
+.axis { 
+  font: 9px sans-serif; 
+  text-anchor: start;
+  stroke: "#000";
+  }
+
+.axis line{
+  stroke: gray;
+  stroke-width: 0.5px;
+}
+
+.axis path{
+  stroke: gray;
+}
+
+.axis text{
+  fill: gray;
+} 
+
+line {
+  stroke: gray;
+  stroke-width: 1px;
+}
+
+.labels {
+font-size: 5;
+
+}
+
+</style>
+<body>
+
+<div class="container-fluid">
+  <div class="page-header">
+    <h1>BGER Visualisierung</h1> 
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 col-md-6 ml-3">
+      <form action = "http://localhost:5000/result" method = "POST">
+         <p><input placeholder = "keyword, e.g. mord" type = "text" name = "Name" /></p>
+         <p ><input class="btn btn-primary" type = "submit" value = "submit" /></p>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-4 col-md-6 ml-3">
+      <h3>Stichwort</h3>
+      <p>mord-totschlag</p>
+      <h3>Urteilskopf</h3>
+      <p>BGE 95 IV 162</p>
+      <h3>Jahr</h3>
+      <p>1969-12-5</p>
+      <h3>Regeste</h3>
+      <p>Art. 718a und Art. 718b OR; Gültigkeit von Rechtsgeschäften bei Interessenkonflikten.
+Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der sich in einem Interessenkonflikt befindende Vertreter der Gesellschaft zugleich Alleinaktionär ist (E. 5; Bestätigung der Rechtsprechung).</p>
+    </div>
+    <div class="col-lg-6 col-md-6">
+      <h3>Visualisation</h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+      <div id="viz">
+        <svg></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+var data2 = {
+  'nodes': 
+    [{"id": "BGE 95 IV 162", "x":"1969-12-5", "y":208.992345},
+    {"id": "BGE 80 IV 238", "x":"1969-9-4", "y":208.992345},
+    {"id": "BGE 80 IV 240", "x":"1961-9-4", "y":208.992345},
+    {"id": "BGE 82 IV 8", "x":"1960-1-3", "y":308.992345}],
+  'links': 
+    [{"source":'BGE 95 IV 162', "target":'BGE 80 IV 238'},
+    {"source":'BGE 95 IV 162', "target":'BGE 80 IV 240'},
+    {"source":'BGE 95 IV 162', "target":'BGE 82 IV 8'}]
+}
+var data3 = {
+  'nodes': 
+    [{"id": "BGE 95 IV 162", "date":"1969-12-5", "relevancy":10},
+    {"id": "BGE 80 IV 238", "date":"1969-9-4", "relevancy":9},
+    {"id": "BGE 80 IV 240", "date":"1961-9-4", "relevancy":7},
+    {"id": "BGE 82 IV 8", "date":"1960-1-3", "relevancy":4}],
+  'links': 
+    [{"source":0, "target":1},
+    {"source":0, "target":2},
+    {"source":0, "target":3}]
+}
+//https://bl.ocks.org/rsk2327/2ebd7f00d43b492e64eee14f35babeac
+
+
+
+//console.log("test", data);
+//extract nodes and links
+var nodes = data.nodes
+
+var links = data.links.map(d => Object.create(d));
+
+var nodes2 = data3.nodes
+
+var links2 = data2.links.map(d => Object.create(d));
+//links = data3.links;
+console.log("links", links, "nodes", nodes, "links2", links2, "nodes2", nodes2);
+//console.log("test", links_data);
+var margin = {top: 30, right: 20, bottom: 30, left: 30},
+    width = 800 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+//--------------------transforming dates in positions---------------
+//The format in the CSV, which d3 will read
+var parseDate = d3.timeParse("%Y-%m-%d");
+//console.log("parse", parseDate(data2["nodes"][3]))
+// Object.keys(data["nodes"]).forEach(function(key, index) {
+//     console.log(key, index, data["nodes"][index].x);
+//     test = parseDate.parse(data["nodes"][index].x);
+//     console.log("date", test);
+// });
+var startDate = new Date();
+var scale  = d3.scaleTime()
+  .domain([new Date(2000, 0, 1), new Date(2018, 0, 2)]) //still needs to be made dynamically
+  .range([margin.left, width]); //range of x axis will be 1000px
+
+//--------------------x-axis---------------
+//https://stackoverflow.com/questions/49785479/force-layout-dragging-objects-are-far-away-from-the-correct-position
+var svg = d3.select('svg')
+    .attr('width', width + margin.left + margin.right) //size including margin
+    .attr('height', height + margin.top + margin.bottom);
+  // Add the x Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .attr("class", "axis")
+      .call(d3.axisBottom(scale)
+        .tickFormat(d3.timeFormat("%Y-%m-%d")))
+      .selectAll("text")
+        .attr("transform", "rotate(45)")
+  // text LABEL for the x axis
+  svg.append("text")             
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height-10) + ")")
+      .style("text-anchor", "middle")
+      .text("Date of Mandate");
+//-------------------y-axis----------------
+var array = Object.values(nodes); //transform object to array
+var y = d3.scaleLinear()
+  .domain([0,d3.max(array, function(d) {
+    return d.relevancy})]) //set max domain dynamically
+  .range([height,margin.top])
+  // Add the y Axis
+  svg.append("g")
+      .attr("transform", "translate(" + margin.left + ",0)")
+      .attr("class", "axis")
+      .call(d3.axisLeft(y)
+        .ticks(10)
+        );
+  // text LABEL for the y axis
+  svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y",margin.left+10)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Relevancy");   
+//--------------------network graph---------------
+//set up the simulation 
+//nodes only for now 
+var simulation = d3.forceSimulation()
+          //add nodes
+          .nodes(nodes); 
+                    
+//add forces
+//we're going to add a charge to each node 
+//also going to add a centering force
+simulation
+    .force("charge_force", d3.forceManyBody())
+    .force("center_force", d3.forceCenter(width / 2, height / 2))
+    .force("x", d3.forceX().x(function(d) {
+    return scale(parseDate(d.date));
+    }))
+    .force("y", d3.forceY().y(function(d) {
+    return y(d.relevancy);
+    }));
+//draw circles for the nodes 
+
+var node = svg.append("g")
+        .selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr('r', 15)
+        .style('fill', 'cadetblue')
+        .on('mouseover', mouseOver)
+        .on('mouseout', mouseOut)
+    
+// var text = node.append("text")
+//     .attr("dx", 2)
+//     .attr("dy", 2)
+//     .text(function(d) { return d.id; })
+//add tick instructions: 
+simulation.on("tick", tickActions);
+var link_force =  d3.forceLink(links)
+//Add a links force to the simulation
+//Specify links  in d3.forceLink argument   
+
+//simulation.force("links",link_force)
+simulation.force("link", d3.forceLink(links).id(d => d.id))
+
+//draw lines for the links 
+var link = svg.append("g")
+    .selectAll("line")
+    .data(links)
+    .enter().append("line")
+    .attr("stroke-width", 1);   
+
+var label = svg.append("g")
+      .selectAll("text")
+      .data(nodes)
+      .enter().append("text")
+      .style("font-size", "8px")
+      .text(function(d) { return d.id; });  
+
+console.log("link", link);
+//-----------------------Hover functionality-------------------
+
+function mouseOver(d){
+  const circle = d3.select(this); //selects circle hovered over
+  console.log("mouseover", circle, d);
+
+
+  node
+    .transition(500)
+      .style('opacity', o => {
+        const isConnectedValue = isConnected(o, d);
+        if (isConnectedValue) {
+          return 1.0; // full opacity
+        }
+        return 0.2 // reduced opacity
+      })
+      .style('fill', 'cadetblue')
+
+      circle
+        .transition(500)
+        .attr('r', 25) //expand this specific circle ONLY
+
+} 
+
+function mouseOut() {
+  console.log("mouseout");
+  const circle = d3.select(this);
+
+  node
+    .transition(500);
+
+  // link
+  //   .transition(500);
+
+  circle
+    .transition(500)
+    .attr('r', 20)//returnn circle back to original size
+
+}
+
+
+let linkedByIndex = {};
+links.forEach((d) => {
+  linkedByIndex[`${d.source.index},${d.target.index}`] = true;
+});
+
+function isConnected(a,b){
+  console.log("is linked as source",isConnectedAsSource(a,b), "is linked as target", isConnectedAsTarget(a,b))
+  return isConnectedAsSource(a,b) || isConnectedAsTarget(a,b);
+}
+
+function isConnectedAsSource(a, b) {
+  console.log()
+  return linkedByIndex[`${a.index},${b.index}`];
+}
+
+function isConnectedAsTarget(a, b) {
+  return linkedByIndex[`${b.index},${a.index}`];
+}
+                
+                
+function tickActions() {
+    //update circle positions each tick of the simulation 
+    node
+        .attr("cx", function(d) { 
+          //console.log("date", d.date)
+          return scale(parseDate(d.date)); })
+        .attr("cy", function(d) { 
+          //console.log(d.relevancy)
+          return y(d.relevancy); });
+
+        //  node
+        // .attr("cx", function(d) { 
+        //   //console.log("date", d.date)
+        //   return d.x; })
+        // .attr("cy", function(d) { 
+        //   //console.log(d.relevancy)
+        //   return d.y; });
+    
+    //update link positions 
+    //simply tells one end of the line to follow one node around
+    //and the other end of the line to follow the other node around
+    link
+        .attr("x1", function(d) { 
+          console.log("d.source.date", d.source.date)
+          return scale(parseDate(d.source.date)); })
+        .attr("y1", function(d) { return y(d.source.relevancy); })
+        .attr("x2", function(d) { return scale(parseDate(d.target.date)); })
+        .attr("y2", function(d) { return y(d.target.relevancy); });
+    
+    label
+        .attr("x", function(d) { return scale(parseDate(d.date))-20; })
+        .attr("y", function (d) { return y(d.relevancy); })
+
+        // label
+        // .attr("x", function(d) { return d.x; })
+        // .attr("y", function (d) { return d.y; })
+  }
+    
+</script>
+
+</html>
