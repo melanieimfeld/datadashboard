@@ -38,15 +38,15 @@ body {
   fill: gray;
 } 
 
-line {
-  stroke: gray;
+/*.links {
+  stroke: "#E8E8E8";
   stroke-width: 1px;
 }
 
 .labels {
 font-size: 5;
 
-}
+}*/
 
 </style>
 <body>
@@ -162,7 +162,7 @@ var svg = d3.select('svg')
             "translate(" + (width/2) + " ," + 
                            (height-10) + ")")
       .style("text-anchor", "middle")
-      .text("Date of Mandate");
+      .text("Date");
 //-------------------y-axis----------------
 var array = Object.values(nodes); //transform object to array
 var y = d3.scaleLinear()
@@ -177,13 +177,13 @@ var y = d3.scaleLinear()
         .ticks(10)
         );
   // text LABEL for the y axis
-  svg.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y",margin.left+10)
-      .attr("x",0 - (height / 2))
-      .attr("dy", "1em")
-      .style("text-anchor", "middle")
-      .text("Relevancy");   
+  // svg.append("text")
+  //     .attr("transform", "rotate(-90)")
+  //     .attr("y",margin.left+10)
+  //     .attr("x",0 - (height / 2))
+  //     .attr("dy", "1em")
+  //     .style("text-anchor", "middle")
+  //     .text("Relevancy");   
 //--------------------network graph---------------
 //set up the simulation 
 //nodes only for now 
@@ -205,65 +205,81 @@ simulation
     }));
 //draw circles for the nodes 
 
+//draw lines for the links 
+var link = svg.append("g")
+    .selectAll("line")
+    .data(links)
+    .enter().append("line")
+    .style("stroke", "#E8E8E8")
+    .style("stroke-width", 0.5);
+
 var node = svg.append("g")
         .selectAll("circle")
         .data(nodes)
         .enter()
         .append("circle")
-        .attr('r', 15)
+        .attr('r', 10)
         .style('fill', 'cadetblue')
+        .style('opacity', 0.2)
         .on('mouseover', mouseOver)
         .on('mouseout', mouseOut)
-    
-// var text = node.append("text")
-//     .attr("dx", 2)
-//     .attr("dy", 2)
-//     .text(function(d) { return d.id; })
+
+
 //add tick instructions: 
 simulation.on("tick", tickActions);
-var link_force =  d3.forceLink(links)
+//var link_force =  d3.forceLink(links)
 //Add a links force to the simulation
 //Specify links  in d3.forceLink argument   
 
 //simulation.force("links",link_force)
 simulation.force("link", d3.forceLink(links).id(d => d.id))
 
-//draw lines for the links 
-var link = svg.append("g")
-    .selectAll("line")
-    .data(links)
-    .enter().append("line")
-    .attr("stroke-width", 1);   
 
 var label = svg.append("g")
       .selectAll("text")
       .data(nodes)
       .enter().append("text")
-      .style("font-size", "8px")
+      .style("font-size", "12px")
+      .style("visibility", "hidden")
       .text(function(d) { return d.id; });  
 
-console.log("link", link);
+//console.log("link", link);
 //-----------------------Hover functionality-------------------
 
 function mouseOver(d){
   const circle = d3.select(this); //selects circle hovered over
   console.log("mouseover", circle, d);
 
-
   node
     .transition(500)
       .style('opacity', o => {
+        //console.log("what is o", o)
         const isConnectedValue = isConnected(o, d);
         if (isConnectedValue) {
           return 1.0; // full opacity
         }
-        return 0.2 // reduced opacity
-      })
-      .style('fill', 'cadetblue')
+          return 0.2 // not connected: reduced opacity
+      });
 
-      circle
-        .transition(500)
-        .attr('r', 25) //expand this specific circle ONLY
+  label
+      .transition(500)
+      .style("visibility", o => {
+        const isConnectedValue = isConnected(o, d);
+        if (isConnectedValue) {
+          return "visible"; // if connected, elements are visible
+        }
+          return "hidden" // not connected: reduced opacity
+      });
+
+  link
+  .style('stroke-width', o => (o.source === d || o.target === d ? 1.5 : 0.5))
+  .style('stroke', o => (o.source === d || o.target === d ? "cadetblue" : "#E8E8E8"))
+
+
+  circle
+    .transition(500)
+    .style('opacity', 1.0)
+    .attr('r', 20) //expand this specific circle ONLY
 
 } 
 
@@ -272,14 +288,16 @@ function mouseOut() {
   const circle = d3.select(this);
 
   node
-    .transition(500);
+    .transition(500)
+    .attr('r', 10); //return ALL circle back to original size
 
   // link
   //   .transition(500);
 
   circle
     .transition(500)
-    .attr('r', 20)//returnn circle back to original size
+    .attr('r',10);
+
 
 }
 
@@ -290,19 +308,32 @@ links.forEach((d) => {
 });
 
 function isConnected(a,b){
-  console.log("is linked as source",isConnectedAsSource(a,b), "is linked as target", isConnectedAsTarget(a,b))
+  //console.log("is linked as source",isConnectedAsSource(a,b), "is linked as target", isConnectedAsTarget(a,b))
   return isConnectedAsSource(a,b) || isConnectedAsTarget(a,b);
 }
 
 function isConnectedAsSource(a, b) {
-  console.log()
+  //console.log()
   return linkedByIndex[`${a.index},${b.index}`];
 }
 
 function isConnectedAsTarget(a, b) {
   return linkedByIndex[`${b.index},${a.index}`];
 }
-                
+
+
+///-----------------------zoom capabilities-------------------------
+//add zoom capabilities 
+var zoom_handler = d3.zoom()
+    .on("zoom", zoom_actions);
+
+zoom_handler(svg);
+
+//Zoom functions 
+function zoom_actions(){
+    svg.attr("transform", d3.event.transform)
+}
+          
                 
 function tickActions() {
     //update circle positions each tick of the simulation 
@@ -327,7 +358,7 @@ function tickActions() {
     //and the other end of the line to follow the other node around
     link
         .attr("x1", function(d) { 
-          console.log("d.source.date", d.source.date)
+          //console.log("d.source.date", d.source.date)
           return scale(parseDate(d.source.date)); })
         .attr("y1", function(d) { return y(d.source.relevancy); })
         .attr("x2", function(d) { return scale(parseDate(d.target.date)); })
@@ -335,7 +366,7 @@ function tickActions() {
     
     label
         .attr("x", function(d) { return scale(parseDate(d.date))-20; })
-        .attr("y", function (d) { return y(d.relevancy); })
+        .attr("y", function (d) { return y(d.relevancy)-15; })
 
         // label
         // .attr("x", function(d) { return d.x; })
