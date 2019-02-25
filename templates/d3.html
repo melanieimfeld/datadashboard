@@ -167,7 +167,7 @@ var svg = d3.select('svg')
 var array = Object.values(nodes); //transform object to array
 var y = d3.scaleLinear()
   .domain([0,d3.max(array, function(d) {
-    return d.relevancy})]) //set max domain dynamically
+    return d.outDegree})]) //set max domain dynamically
   .range([height,margin.top])
   // Add the y Axis
   svg.append("g")
@@ -201,7 +201,7 @@ simulation
     return scale(parseDate(d.date));
     }))
     .force("y", d3.forceY().y(function(d) {
-    return y(d.relevancy);
+    return y(d.outDegree);
     }));
 //draw circles for the nodes 
 
@@ -219,7 +219,15 @@ var node = svg.append("g")
         .enter()
         .append("circle")
         .attr('r', 10)
-        .style('fill', 'cadetblue')
+        .style('fill', function(d){ 
+        	if (d.level == 1){
+        		return '#8a15ff';
+        	} else if (d.level == 2) {
+        		return '#0202ff';
+        	} else {
+        		return '#158aff';
+        	}
+        })
         .style('opacity', 0.2)
         .on('mouseover', mouseOver)
         .on('mouseout', mouseOut)
@@ -273,7 +281,7 @@ function mouseOver(d){
 
   link
   .style('stroke-width', o => (o.source === d || o.target === d ? 1.5 : 0.5))
-  .style('stroke', o => (o.source === d || o.target === d ? "cadetblue" : "#E8E8E8"))
+  .style('stroke', o => (o.source === d || o.target === d ? "#0202ff" : "#E8E8E8"))
 
 
   circle
@@ -343,7 +351,7 @@ function tickActions() {
           return scale(parseDate(d.date)); })
         .attr("cy", function(d) { 
           //console.log(d.relevancy)
-          return y(d.relevancy); });
+          return y(d.outDegree); });
 
         //  node
         // .attr("cx", function(d) { 
@@ -360,13 +368,13 @@ function tickActions() {
         .attr("x1", function(d) { 
           //console.log("d.source.date", d.source.date)
           return scale(parseDate(d.source.date)); })
-        .attr("y1", function(d) { return y(d.source.relevancy); })
+        .attr("y1", function(d) { return y(d.source.outDegree); })
         .attr("x2", function(d) { return scale(parseDate(d.target.date)); })
-        .attr("y2", function(d) { return y(d.target.relevancy); });
+        .attr("y2", function(d) { return y(d.target.outDegree); });
     
     label
         .attr("x", function(d) { return scale(parseDate(d.date))-20; })
-        .attr("y", function (d) { return y(d.relevancy)-15; })
+        .attr("y", function (d) { return y(d.outDegree)-15; })
 
         // label
         // .attr("x", function(d) { return d.x; })
