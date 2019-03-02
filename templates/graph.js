@@ -1,93 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Networkviz</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-  <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="./data.js"></script>
-</head>
-<style type="text/css">
-  #viz {
-    position:absolute;
-  }
-body {
-  font-family: 'Roboto', sans-serif;
-  background: "#FFFFF0";
-}
-.axis { 
-  font: 9px sans-serif; 
-  text-anchor: start;
-  stroke: "#000";
-  }
-
-.axis line{
-  stroke: gray;
-  stroke-width: 0.5px;
-}
-
-.axis path{
-  stroke: gray;
-}
-
-.axis text{
-  fill: gray;
-} 
-
-/*.links {
-  stroke: "#E8E8E8";
-  stroke-width: 1px;
-}
-
-.labels {
-font-size: 5;
-
-}*/
-
-</style>
-<body>
-
-<div class="container-fluid">
-  <div class="page-header">
-    <h1>BGER Visualisierung</h1> 
-  </div>
-
-  <div class="row">
-    <div class="col-lg-8 col-md-6 ml-3">
-      <form action = "http://localhost:5000/result" method = "POST">
-         <p><input placeholder = "keyword, e.g. mord" type = "text" name = "Name" /></p>
-         <p ><input class="btn btn-primary" type = "submit" value = "submit" /></p>
-      </form>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-lg-4 col-md-6 ml-3">
-      <h3>Stichwort</h3>
-      <p>mord-totschlag</p>
-      <h3>Urteilskopf</h3>
-      <p>BGE 95 IV 162</p>
-      <h3>Jahr</h3>
-      <p>1969-12-5</p>
-      <h3>Regeste</h3>
-      <p>Art. 718a und Art. 718b OR; Gültigkeit von Rechtsgeschäften bei Interessenkonflikten.
-Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der sich in einem Interessenkonflikt befindende Vertreter der Gesellschaft zugleich Alleinaktionär ist (E. 5; Bestätigung der Rechtsprechung).</p>
-    </div>
-    <div class="col-lg-6 col-md-6">
-      <h3>Visualisation</h3>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
-      <div id="viz">
-        <svg></svg>
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-<script>
 var data2 = {
   'nodes': 
     [{"id": "BGE 95 IV 162", "x":"1969-12-5", "y":208.992345},
@@ -112,18 +22,20 @@ var data3 = {
 }
 //https://bl.ocks.org/rsk2327/2ebd7f00d43b492e64eee14f35babeac
 
-
-
 //console.log("test", data);
 //extract nodes and links
 var nodes = data.nodes
 
-var links = data.links.map(d => Object.create(d));
+//Object.create() creates an object
+var links = data.links;
+//var links = data.links.map(d => Object.create(d));
 
-//var nodes2 = data3.nodes
+//console.log(links, links2);
+
+var degrees = 'outDegree'; 
 
 //console.log("test", links_data);
-var margin = {top: 30, right: 20, bottom: 30, left: 30},
+var margin = {top: 40, right: 50, bottom: 40, left: 20},
     width = 800 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 //--------------------transforming dates in positions---------------
@@ -160,11 +72,28 @@ var svg = d3.select('svg')
                            (height-10) + ")")
       .style("text-anchor", "middle")
       .text("Date");
+
+//-------------------toggle buttons----------------
+ var areas = ["P","Q", "R"],
+    area = "P";
+ var body = d3.select("#viz");
+         var buttons = body.append("div")
+              .attr("class", "buttons-container")
+              .selectAll("div").data(areas)
+           .enter().append("div")
+              .text(function(d) { return d; })
+              .attr("class", function(d) {
+                   if(d == areas)
+                        return "button selected";
+                   else
+                        return "button";
+              });
 //-------------------y-axis----------------
 var array = Object.values(nodes); //transform object to array
 var y = d3.scaleLinear()
   .domain([0,d3.max(array, function(d) {
-    return d.inDegree})]) //set max domain dynamically
+    //console.log("gimme the degree", d[degrees]);
+    return d[degrees]})]) //set max domain dynamically
   .range([height,margin.top])
   // Add the y Axis
   svg.append("g")
@@ -173,14 +102,14 @@ var y = d3.scaleLinear()
       .call(d3.axisLeft(y)
         .ticks(10)
         );
-  // text LABEL for the y axis
-  // svg.append("text")
-  //     .attr("transform", "rotate(-90)")
-  //     .attr("y",margin.left+10)
-  //     .attr("x",0 - (height / 2))
-  //     .attr("dy", "1em")
-  //     .style("text-anchor", "middle")
-  //     .text("Relevancy");   
+  //text LABEL for the y axis
+  svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y",margin.left+10)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text(degrees);   
 //--------------------network graph---------------
 //set up the simulation 
 //nodes only for now 
@@ -198,7 +127,7 @@ simulation
     return scale(parseDate(d.date));
     }))
     .force("y", d3.forceY().y(function(d) {
-    return y(d.inDegree);
+    return y(d[degrees]);
     }));
 //draw circles for the nodes 
 
@@ -246,14 +175,13 @@ var label = svg.append("g")
       .enter().append("text")
       .style("font-size", "12px")
       .style("visibility", "hidden")
-      .text(function(d) { return d.id; });  
+      .text(function(d) { return d.id + " Degrees: " + d[degrees]; });  
 
-//console.log("link", link);
 //-----------------------Hover functionality-------------------
 
 function mouseOver(d){
   const circle = d3.select(this); //selects circle hovered over
-  console.log("mouseover", circle, d);
+  console.log("mouseover", d, "link", link);
 
   node
     .transition(500)
@@ -266,6 +194,11 @@ function mouseOver(d){
           return 0.2 // not connected: reduced opacity
       });
 
+  circle
+    .transition(500)
+    .style('opacity', 1.0)
+    .attr('r', 20) //expand this specific circle ONLY
+
   label
       .transition(500)
       .style("visibility", o => {
@@ -277,14 +210,8 @@ function mouseOver(d){
       });
 
   link
-  .style('stroke-width', o => (o.source === d || o.target === d ? 1.5 : 0.5))
-  .style('stroke', o => (o.source === d || o.target === d ? "#0202ff" : "#E8E8E8"))
-
-
-  circle
-    .transition(500)
-    .style('opacity', 1.0)
-    .attr('r', 20) //expand this specific circle ONLY
+    .style('stroke-width', o => (o.source === d || o.target === d ? 1.5 : 0.5))
+    .style('stroke', o => (o.source === d || o.target === d ? "#0202ff" : "#E8E8E8"))
 
 } 
 
@@ -348,7 +275,7 @@ function tickActions() {
           return scale(parseDate(d.date)); })
         .attr("cy", function(d) { 
           //console.log(d.relevancy)
-          return y(d.inDegree); });
+          return y(d[degrees]); });
 
         //  node
         // .attr("cx", function(d) { 
@@ -365,19 +292,15 @@ function tickActions() {
         .attr("x1", function(d) { 
           //console.log("d.source.date", d.source.date)
           return scale(parseDate(d.source.date)); })
-        .attr("y1", function(d) { return y(d.source.inDegree); })
+        .attr("y1", function(d) { return y(d['source'][degrees]); })
         .attr("x2", function(d) { return scale(parseDate(d.target.date)); })
-        .attr("y2", function(d) { return y(d.target.inDegree); });
+        .attr("y2", function(d) { return y(d['target'][degrees]); });
     
-    label
+    label  
         .attr("x", function(d) { return scale(parseDate(d.date))-20; })
-        .attr("y", function (d) { return y(d.inDegree)-15; })
+        .attr("y", function (d) { return y(d[degrees])-15; });
 
         // label
         // .attr("x", function(d) { return d.x; })
         // .attr("y", function (d) { return d.y; })
   }
-    
-</script>
-
-</html>
