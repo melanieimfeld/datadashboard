@@ -9,7 +9,8 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="./data.js"></script>
+  <script href="{{ url_for('static', filename='data.js') }}"></script>
+  <script href="{{ url_for('static', filename='graph.js') }}"></script>
 </head>
 <style type="text/css">
   #viz {
@@ -72,7 +73,7 @@ font-size: 5;
 
   <div class="row">
     <div class="col-lg-8 col-md-6 ml-3">
-      <form action = "http://localhost:5000/result" method = "POST">
+      <form method = "POST" onsubmit = "test()">
          <p><input placeholder = "keyword, e.g. mord" type = "text" name = "Name" /></p>
          <p ><input class="btn btn-primary" type = "submit" value = "submit" /></p>
       </form>
@@ -100,7 +101,5 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
 </div>
 
 </body>
- <script src="./graph.js"></script>
-<!-- <script></script> -->
 
 </html>

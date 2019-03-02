@@ -9,18 +9,19 @@ import requests
 
 app = Flask(__name__)
 
-@app.route("/")
-# def index():
-#     df = pd.read_csv('data.csv').drop('Open', axis=1)
-#     chart_data = df.to_dict(orient='records')
-#     chart_data = json.dumps(chart_data, indent=2)
-#     data = {'chart_data': chart_data}
-#     return render_template("form.html", data=data)
+# @app.route("/")
+# # def index():
+# #     df = pd.read_csv('data.csv').drop('Open', axis=1)
+# #     chart_data = df.to_dict(orient='records')
+# #     chart_data = json.dumps(chart_data, indent=2)
+# #     data = {'chart_data': chart_data}
+# #     return render_template("form.html", data=data)
 
-#@app.route('/')
-def hello_world():
-	#test = scraper.scrape()
-	return render_template('result.html')
+# #@app.route('/')
+# def hello_world():
+# 	print("hello")
+# 	#test = scraper.scrape()
+# 	return render_template('index.html')
 
 
 @app.route('/hello')
@@ -29,12 +30,18 @@ def hello():
 
 
 @app.route('/',methods = ['POST', 'GET'])
-def result():
-	if request.method == 'POST':
-		query = request.form.to_dict() 
-		query = query.get('Name') #get keyword user entered
-		output = scraper.scrape(query) #call scraper
-		return output
+def loadJson():
+	with open('./static/nodes.json') as json_data:
+		d = json.load(json_data)
+		#print(d)
+	#d = {"testdata":2}
+	return render_template("index.html", d=d)
+# def result():
+# 	if request.method == 'POST':
+# 		query = request.form.to_dict() 
+# 		query = query.get('Name') #get keyword user entered
+# 		output = scraper.scrape(query) #call scraper
+# 		return output
 		
 #return render_template("result.html",result = result)
 

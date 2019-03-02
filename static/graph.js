@@ -22,7 +22,18 @@ var data3 = {
 }
 //https://bl.ocks.org/rsk2327/2ebd7f00d43b492e64eee14f35babeac
 
-//console.log("test", data);
+// function test() {
+//   $.getJSON("./nodes.json", function(json) {
+//     console.log(json); // this will show the info it in firebug console
+//   });
+// }
+
+// test();
+
+
+// var pyTest= {{ d | safe }};
+
+// console.log("this is data from python", pyTest);
 //extract nodes and links
 var nodes = data.nodes
 
