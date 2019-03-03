@@ -9,16 +9,17 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script href="{{ url_for('static', filename='data.js') }}"></script>
-  <script href="{{ url_for('static', filename='graph.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/data.js') }}"></script>
 </head>
 <style type="text/css">
+
   #viz {
     position:absolute;
   }
 body {
   font-family: 'Roboto', sans-serif;
-  background: "#FFFFF0";
+  background-color: #FFFEF7;
+  color:#4E4E4D;
 }
 .axis { 
   font: 9px sans-serif; 
@@ -27,7 +28,7 @@ body {
   }
 
 .axis line{
-  stroke: gray;
+  stroke: #4E4E4D;
   stroke-width: 0.5px;
 }
 
@@ -53,36 +54,39 @@ div.tooltip {
     pointer-events: none;     
 }
 
-/*.links {
-  stroke: "#E8E8E8";
-  stroke-width: 1px;
+
+#search{
+  width: 100%;
+  font-size: 30px;
+  text-decoration: underline;
+  background-color: transparent;
+  outline: none;
+  border: none;
 }
 
-.labels {
-font-size: 5;
-
-}*/
+::-webkit-input-placeholder {
+    text-decoration: underline;
+    color: ##4E4E4D;
+}
 
 </style>
 <body>
 
 <div class="container-fluid">
   <div class="page-header">
-    <h1>BGER Visualisierung</h1> 
+     <form method = "POST">
+         <p><input placeholder = "keyword, e.g. mord" type = "text" name = "Name" id="search"/></p>
+        <!--     this moves the submit button veery far away -->
+         <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;" tabindex="-1" />
+      </form>
   </div>
 
   <div class="row">
-    <div class="col-lg-8 col-md-6 ml-3">
-      <form method = "POST" onsubmit = "test()">
-         <p><input placeholder = "keyword, e.g. mord" type = "text" name = "Name" /></p>
-         <p ><input class="btn btn-primary" type = "submit" value = "submit" /></p>
-      </form>
-    </div>
   </div>
   <div class="row">
-    <div class="col-lg-4 col-md-6 ml-3">
+    <div class="col-lg-3 col-md-3">
       <h3>Stichwort</h3>
-      <p>mord-totschlag</p>
+      <p>{{d[2] | safe }}</p>
       <h3>Urteilskopf</h3>
       <p>BGE 95 IV 162</p>
       <h3>Jahr</h3>
@@ -91,7 +95,7 @@ font-size: 5;
       <p>Art. 718a und Art. 718b OR; Gültigkeit von Rechtsgeschäften bei Interessenkonflikten.
 Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der sich in einem Interessenkonflikt befindende Vertreter der Gesellschaft zugleich Alleinaktionär ist (E. 5; Bestätigung der Rechtsprechung).</p>
     </div>
-    <div class="col-lg-6 col-md-6">
+    <div class="col-lg-9 col-md-9">
   <!--     <h3>Visualisation</h3> -->
       <div id="viz">
         <svg></svg>
@@ -99,7 +103,12 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  var data = {{d | safe}}
+  
+  
+</script>
 
 </body>
-
+<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
 </html>

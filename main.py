@@ -9,19 +9,8 @@ import requests
 
 app = Flask(__name__)
 
-# @app.route("/")
-# # def index():
-# #     df = pd.read_csv('data.csv').drop('Open', axis=1)
-# #     chart_data = df.to_dict(orient='records')
-# #     chart_data = json.dumps(chart_data, indent=2)
-# #     data = {'chart_data': chart_data}
-# #     return render_template("form.html", data=data)
-
-# #@app.route('/')
-# def hello_world():
-# 	print("hello")
-# 	#test = scraper.scrape()
-# 	return render_template('index.html')
+#browser will not cache static assets that are served by Flask
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 @app.route('/hello')
@@ -30,12 +19,28 @@ def hello():
 
 
 @app.route('/',methods = ['POST', 'GET'])
-def loadJson():
+def userInput():
+	query = "test"
+	if request.method == 'POST':
+		query = request.form.to_dict() 
+		query = query.get('Name') #get keyword user entered
+		print(query)
+
 	with open('./static/nodes.json') as json_data:
-		d = json.load(json_data)
+		nodes = json.load(json_data)
+		nodes2 = []
+		#print(nodes)
+		for item in nodes:
+			#print(item.get("keyword"))
+			if item.get("keyword") == query:
+				#print('item contains query')
+				nodes2.append(item)
+	print('nodes2', nodes2)
+	with open('./static/edges.json') as json_data:
+		edges = json.load(json_data)
 		#print(d)
 	#d = {"testdata":2}
-	return render_template("index.html", d=d)
+	return render_template("index.html", d=[nodes, edges, query])
 # def result():
 # 	if request.method == 'POST':
 # 		query = request.form.to_dict() 

@@ -29,16 +29,12 @@ var data3 = {
 // }
 
 // test();
+console.log("where art thou", nodes);
 
-
-// var pyTest= {{ d | safe }};
-
-// console.log("this is data from python", pyTest);
-//extract nodes and links
-var nodes = data.nodes
+var nodes = data[0];
 
 //Object.create() creates an object
-var links = data.links;
+var links = data[1];
 //var links = data.links.map(d => Object.create(d));
 
 //console.log(links, links2);
@@ -47,7 +43,7 @@ var degrees = 'outDegree';
 
 //console.log("test", links_data);
 var margin = {top: 40, right: 50, bottom: 40, left: 20},
-    width = 800 - margin.left - margin.right,
+    width = 1200 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 //--------------------transforming dates in positions---------------
 //The format in the CSV, which d3 will read
@@ -155,7 +151,7 @@ var node = svg.append("g")
         .data(nodes)
         .enter()
         .append("circle")
-        .attr('r', 10)
+        .attr('r', 7)
         .style('fill', function(d){ 
         	if (d.level == 1){
         		return '#8a15ff';
@@ -227,19 +223,18 @@ function mouseOver(d){
 } 
 
 function mouseOut() {
-  console.log("mouseout");
   const circle = d3.select(this);
 
   node
     .transition(500)
-    .attr('r', 10); //return ALL circle back to original size
+    .attr('r', 7); //return ALL circle back to original size
 
   // link
   //   .transition(500);
 
   circle
     .transition(500)
-    .attr('r',10);
+    .attr('r',7);
 
 
 }
