@@ -20,7 +20,7 @@ def hello():
 
 @app.route('/',methods = ['POST', 'GET'])
 def userInput():
-	query = "test"
+	query = "mord"
 	if request.method == 'POST':
 		query = request.form.to_dict() 
 		query = query.get('Name') #get keyword user entered
@@ -41,12 +41,6 @@ def userInput():
 		#print(d)
 	#d = {"testdata":2}
 	return render_template("index.html", d=[nodes, edges, query])
-# def result():
-# 	if request.method == 'POST':
-# 		query = request.form.to_dict() 
-# 		query = query.get('Name') #get keyword user entered
-# 		output = scraper.scrape(query) #call scraper
-# 		return output
 		
 #return render_template("result.html",result = result)
 
