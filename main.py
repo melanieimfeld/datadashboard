@@ -1,9 +1,8 @@
 import json
-import scraper
+#import scraper
 import sys
 
 from flask import Flask, render_template, request
-import pandas as pd
 
 import requests
 
@@ -24,7 +23,18 @@ def userInput():
 	if request.method == 'POST':
 		query = request.form.to_dict() 
 		query = query.get('Name') #get keyword user entered
-		print(query)
+		#print(query)
+	with open('./static/edges.json') as json_data2:
+		edges = json.load(json_data2)
+		edges2 = []
+		for item2 in edges:
+			#print(item.get("keyword"))
+			if item2.get("keyword") == query:
+				#print('item contains query')
+				edges2.append(item2)
+		
+		#print(d)
+		print("hello hello hello", edges2, edges)
 
 	with open('./static/nodes.json') as json_data:
 		nodes = json.load(json_data)
@@ -35,12 +45,10 @@ def userInput():
 			if item.get("keyword") == query:
 				#print('item contains query')
 				nodes2.append(item)
-	print('nodes2', nodes2)
-	with open('./static/edges.json') as json_data:
-		edges = json.load(json_data)
-		#print(d)
+	#print('nodes2', nodes2)
+
 	#d = {"testdata":2}
-	return render_template("index.html", d=[nodes, edges, query])
+	return render_template("index.html", d=[nodes2, edges2, query])
 		
 #return render_template("result.html",result = result)
 

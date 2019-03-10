@@ -3,6 +3,12 @@ api_version: 1
 threadsafe: true
 
 handlers:
+# If the path is empty, show static index.html file
+- url: /
+  static_files: index.html
+  upload: index.html
+
+# Otherwise, find file in static directory
 - url: /static
   static_dir: static
 - url: /.*

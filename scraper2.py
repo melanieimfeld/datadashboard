@@ -38,7 +38,7 @@ def scrapeLinks(number):
 	#------------append 1st level----------------
 		for i in range(number):
 			mandate1 = getDateName(linksList[i], word)
-			nodes.append({"id": mandate1[0],"keyword": word, "date":mandate1[1],"level": 1, "canton":mandate1[5], "regeste": mandate1[6], "outDegree": len(mandate1[4])})
+			nodes.append({"id": mandate1[0],"keyword": word, "date":mandate1[1],"level": 1, "canton":mandate1[5], "regeste": mandate1[6], "link": linksList[i], "outDegree": len(mandate1[4])})
 
 		#------------append 2nd level----------------
 			linksLevel2 = mandate1[2]
@@ -51,7 +51,7 @@ def scrapeLinks(number):
 				if (mandate2[1] != 0 and mandate2[0] not in nodes):
         	#print("jump to next level", mandate2[1])
         	#print("next edgelist", mandate2[3], mandate2[1],mandate2[0])
-					oj = {"id": mandate2[0],"keyword": word, "date":mandate2[1], "level": 2, "canton":mandate2[5], "regeste": mandate2[6], "outDegree":len(mandate2[4])}
+					oj = {"id": mandate2[0],"keyword": word, "date":mandate2[1], "level": 2, "canton":mandate2[5], "regeste": mandate2[6], "link":url, "outDegree":len(mandate2[4])}
 					nodes.append(oj)
 					linksLevel3.append([mandate2[0], mandate2[2]])
         	#print("mandates linked",len(mandate2[4]),"list",mandate2[4], "mandate", mandate2[0])
@@ -59,19 +59,20 @@ def scrapeLinks(number):
 					edges.append({"source": mandate1[0], "target": mandate2[0], "keyword": word})
         	#edges.extend(mandate2[3])
 
- #        #------------append 3nd level----------------
- #        #linksLevel3= sum(linksLevel3,[])
-	# 	for nestedItem in linksLevel3: #iterate through nested item in list. each item contains all sublinks and the source ID
-	# 		#print("NEW ITEM", nestedItem[0])
-	# 		for url in nestedItem[1]: #for each source iterate through all links
- #        #print("NEW SUBITEM", url)
-	# 			mandate3 = getDateName(url, word)
-	# 			if (mandate3[1] != 0 and mandate3[0] not in nodes):
- #            #print(mandate3[1] != 0)
-	# 				oj = {"id": mandate3[0],"keyword": word, "date":mandate3[1], "level": 3, "outDegree":len(mandate3[4])}
- #            #print(oj)
-	# 				nodes.append(oj)
-	# 				edges.append({"source": nestedItem[0], "target": mandate3[0]})
+        #------------append 3nd level----------------
+        #linksLevel3= sum(linksLevel3,[])
+		for nestedItem in linksLevel3: #iterate through nested item in list. each item contains all sublinks and the source ID
+			#print("NEW ITEM", nestedItem[0])
+			for url in nestedItem[1]: #for each source iterate through all links
+        #print("NEW SUBITEM", url)
+				mandate3 = getDateName(url, word)
+				if (mandate3[1] != 0 and mandate3[0] not in nodes):
+            #print(mandate3[1] != 0)
+					oj = {"id": mandate3[0],"keyword": word, "date":mandate3[1], "level": 3, "canton":mandate3[5], "regeste": mandate3[6], "link": url, "outDegree":len(mandate3[4])}
+            #print(oj)
+					nodes.append(oj)
+					edges.append({"source": nestedItem[0], "target": mandate3[0], "keyword": word})
+
 	sources = [x['target'] for x in edges]
 	sources = Counter(sources)
 	sources = list(sources.items())

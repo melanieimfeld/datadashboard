@@ -9,7 +9,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="{{ url_for('static', filename='js/data.js') }}"></script>
+  <script src="{{ url_for('static', filename='data.js') }}"></script>
 </head>
 <style type="text/css">
 
@@ -86,13 +86,17 @@ div.tooltip {
   <div class="row">
     <div class="col-lg-3 col-md-3">
       <h3>Stichwort</h3>
-      <p>{{d[2] | safe }}</p>
-      <h3>Urteilskopf</h3>
-      <p>BGE 95 IV 162</p>
+      <p id="stichwort" >{{d[2] | safe }}</p>
+      <h3>Urteil</h3>
+      <p id="urteil">{{d[0][0].id | safe }}</p>
       <h3>Jahr</h3>
-      <p>1969-12-5</p>
+      <p id="jahr">1969-12-5</p>
+      <h3>Kanton</h3>
+      <p id="kanton"></p>
+      <h3>Anzahl Zitierungen</h3>
+      <p id="cit"></p>
       <h3>Regeste</h3>
-      <p>Art. 718a und Art. 718b OR; Gültigkeit von Rechtsgeschäften bei Interessenkonflikten.
+      <p id="regeste">Art. 718a und Art. 718b OR; Gültigkeit von Rechtsgeschäften bei Interessenkonflikten.
 Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der sich in einem Interessenkonflikt befindende Vertreter der Gesellschaft zugleich Alleinaktionär ist (E. 5; Bestätigung der Rechtsprechung).</p>
     </div>
     <div class="col-lg-9 col-md-9">
@@ -110,5 +114,5 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
 </script>
 
 </body>
-<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+<script src="{{ url_for('static', filename='graph.js') }}"></script>
 </html>
