@@ -52,9 +52,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20)
 //console.log("test", links_data);
 var margin = {top: 50, right: 50, bottom: 40, left: 30},
     width = 1200 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom,
-    padding = 1,
-    radius = 6;
+    height = 600 - margin.top - margin.bottom;
 //--------------------transforming dates in positions---------------
 //The format in the CSV, which d3 will read
 var parseDate = d3.timeParse("%Y-%m-%d");
@@ -92,24 +90,20 @@ var svg = d3.select('svg')
       .text("Date");
 
 //-------------------toggle buttons, needed later----------------
-var options = ["Täter Geschlecht","Angefechtete Staatsanwaltschaft"];
-
-d3.select("#selectButton")
-  .selectAll("myOptions")
-  .data(options)
-  .enter()
-  .append("option")
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; })
-  
- d3.select("#selectButton").on("change", update);
-
-
-function update() {
-    var selectedOption = d3.select(this).property("value")
-     console.log("hello!", selectedOption);
-}
-
+ // var areas = ["P","Q", "R"],
+ //    area = "P";
+ // var body = d3.select("#viz");
+ //         var buttons = body.append("div")
+ //              .attr("class", "buttons-container")
+ //              .selectAll("div").data(areas)
+ //           .enter().append("div")
+ //              .text(function(d) { return d; })
+ //              .attr("class", function(d) {
+ //                   if(d == areas)
+ //                        return "button selected";
+ //                   else
+ //                        return "button";
+ //              });
 //-------------------y-axis----------------
 var array = Object.values(nodes); //transform object to array
 var y = d3.scaleLinear()
@@ -133,11 +127,8 @@ var y = d3.scaleLinear()
       .style("text-anchor", "middle")
       .text(degrees); 
 
+console.log("colordomain", color.domain());
 
- nodes.forEach(function(d) {
-    d[degrees] = + d[degrees];
-    //console.log(d[yVar]);
-  });
 
 //--------------------network graph---------------
 //set up the simulation 
@@ -150,12 +141,10 @@ var simulation = d3.forceSimulation()
 //we're going to add a charge to each node 
 //also going to add a centering force
 simulation
-    .on("tick", tick)
+    // .force("charge_force", d3.forceManyBody())
     .force("collide", d3.forceCollide(7));
-  //   .force('x', d3.forceX().x(function(d) {
-  // return scale(parseDate(d.date));}));
- 
-simulation.force("link", d3.forceLink(links).id(d => d.id))
+//draw circles for the nodes 
+
 
 //draw lines for the links 
 var link = svg.append("g")
@@ -164,13 +153,6 @@ var link = svg.append("g")
     .enter().append("line")
     .style("stroke", "#E8E8E8")
     .style("stroke-width", 0.5);
-
- // Set initial positions
-  nodes.forEach(function(d) {
-    d.x = scale(parseDate(d.date));
-    d.y = y(d[degrees]);
-    d.radius = 7;
-  });
 
 
 var node = svg.append("g")
@@ -183,8 +165,6 @@ var node = svg.append("g")
         .attr("xlink:href", function(d){return d.link;})
         .append("circle")    
         .attr('r', 7)
-        .attr("cx", function(d) { return scale(parseDate(d.date)); })
-        .attr("cy", function(d) { return y(d[degrees]); })
         .style("fill", function(d){ return color(d.canton)})
         .style('opacity', 0.5)
         .on('mouseover', mouseOver)
@@ -193,34 +173,31 @@ var node = svg.append("g")
 
 //-------------------legend----------------
 
-  var legend = svg.append("g")
-      .selectAll("g")
+  var legend = svg.selectAll(".legend")
       .data(color.domain())
     .enter().append("g")
       .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(" + (width-20)+"," + i * 20 + ")"; });
-
-//--------not visible yet------
-  legend
-      .append("text")
-      .attr("dy", "0.32em")
-      .attr("x", -10)
-      .attr("y", 5) 
-      // .attr("x", width-24)
-      // .attr("y", 24)
-      .style("text-anchor", "end")
-      .text(function(d) { console.log(d); return d});
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
    legend.append("rect")
-      // .attr("x", width/2)
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
       .style("fill", color);  
 
+//--------not visible yet------
+  legend.append("text")
+      .attr("fill", "black") 
+      .attr("x", width-24)
+      .attr("y", 24)
+      .style("text-anchor", "end")
+      .text(function(d) { return d.canton; });
 
-
+//simulation.force("links",link_force)
+simulation.force("link", d3.forceLink(links).id(d => d.id))
 
 //add tick instructions: 
+simulation.on("tick", tickActions);
 //var link_force =  d3.forceLink(links)
 //Add a links force to the simulation
 //Specify links  in d3.forceLink argument   
@@ -376,56 +353,4 @@ function tickActions() {
         // label
         // .attr("x", function(d) { return d.x; })
         // .attr("y", function (d) { return d.y; })
-  }
-
-
-  function tick(d) {
-  //console.log(simulation.alpha());
-
-    node.each(moveTowardDataPosition(simulation.alpha()));
-
-    node.each(collide(simulation.alpha()));
-
-    //console.log(node);
-
-    node.attr("cx", function(d) { /*console.log(scale(parseDate(d.date)), d.x);*/ return scale(parseDate(d.date)); })
-        .attr("cy", function(d) { return d.y; });
-  }
-
-  function moveTowardDataPosition(alpha) {
-    return function(d) {
-      d.x += (scale(parseDate(d.date)) - d.x) * 0.1 * alpha;
-      d.y += (y(d[degrees]) - d.y) * 0.1 * alpha;
-    };
-  }
-
-  // Resolve collisions between nodes.
-  function collide(alpha) {
-    var quadtree = d3.quadtree(nodes);
-    //console.log("whats a quadtree", quadtree)
-    return function(d) {
-      //console.log("that is d here", d);
-      var r = 7 + radius + padding,
-          nx1 = d.x - r,
-          nx2 = d.x + r,
-          ny1 = d.y - r,
-          ny2 = d.y + r;
-      quadtree.visit(function(quad, x1, y1, x2, y2) {
-        //console.log(quad.point);
-        if (quad.point && (quad.point !== d)) {
-          var x = d.x - quad.point.x,
-              y = d.y - quad.point.y,
-              l = Math.sqrt(x * x + y * y),
-              r = d.radius + quad.point.radius + (d.color !== quad.point.color) * padding;
-          if (l < r) {
-            l = (l - r) / l * alpha;
-            d.x -= x *= l;
-            d.y -= y *= l;
-            quad.point.x += x;
-            quad.point.y += y;
-          }
-        }
-        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-      });
-    };
   }
