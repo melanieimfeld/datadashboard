@@ -24,31 +24,34 @@ def userInput():
 		query = request.form.to_dict() 
 		query = query.get('Name') #get keyword user entered
 		#print(query)
-	with open('./static/edges.json') as json_data2:
-		edges = json.load(json_data2)
-		edges2 = []
-		for item2 in edges:
+	if (query == "mord" or query == "diebstahl"):
+		#print(query)
+		with open('./static/edges.json') as json_data2:
+			edges = json.load(json_data2)
+			edges2 = []
+			for item2 in edges:
 			#print(item.get("keyword"))
-			if item2.get("keyword") == query:
+				if item2.get("keyword") == query:
 				#print('item contains query')
-				edges2.append(item2)
+					edges2.append(item2)
 		
 		#print(d)
-		print("hello hello hello", edges2, edges)
+		#print("hello hello hello", edges2, edges)
 
-	with open('./static/nodes.json') as json_data:
-		nodes = json.load(json_data)
-		nodes2 = []
+		with open('./static/nodes.json') as json_data:
+			nodes = json.load(json_data)
+			nodes2 = []
 		#print(nodes)
-		for item in nodes:
+			for item in nodes:
 			#print(item.get("keyword"))
-			if item.get("keyword") == query:
+				if item.get("keyword") == query:
 				#print('item contains query')
-				nodes2.append(item)
-	#print('nodes2', nodes2)
+					nodes2.append(item)
+		#return render_template("noResult.html")
+		return render_template("index.html", d=[nodes2, edges2, query])
 
-	#d = {"testdata":2}
-	return render_template("index.html", d=[nodes2, edges2, query])
+	else:
+		return render_template("noResult.html")
 		
 #return render_template("result.html",result = result)
 

@@ -1,35 +1,3 @@
-var data2 = {
-  'nodes': 
-    [{"id": "BGE 95 IV 162", "x":"1969-12-5", "y":208.992345},
-    {"id": "BGE 80 IV 238", "x":"1969-9-4", "y":208.992345},
-    {"id": "BGE 80 IV 240", "x":"1961-9-4", "y":208.992345},
-    {"id": "BGE 82 IV 8", "x":"1960-1-3", "y":308.992345}],
-  'links': 
-    [{"source":'BGE 95 IV 162', "target":'BGE 80 IV 238'},
-    {"source":'BGE 95 IV 162', "target":'BGE 80 IV 240'},
-    {"source":'BGE 95 IV 162', "target":'BGE 82 IV 8'}]
-}
-var data3 = {
-  'nodes': 
-    [{"id": "BGE 95 IV 162", "date":"1969-12-5", "relevancy":10},
-    {"id": "BGE 80 IV 238", "date":"1969-9-4", "relevancy":9},
-    {"id": "BGE 80 IV 240", "date":"1961-9-4", "relevancy":7},
-    {"id": "BGE 82 IV 8", "date":"1960-1-3", "relevancy":4}],
-  'links': 
-    [{"source":0, "target":1},
-    {"source":0, "target":2},
-    {"source":0, "target":3}]
-}
-//https://bl.ocks.org/rsk2327/2ebd7f00d43b492e64eee14f35babeac
-
-// function test() {
-//   $.getJSON("./nodes.json", function(json) {
-//     console.log(json); // this will show the info it in firebug console
-//   });
-// }
-
-// test();
-//console.log("where art thou", nodes);
 
 var nodes = data[0];
 
@@ -58,12 +26,6 @@ var margin = {top: 50, right: 50, bottom: 40, left: 30},
 //--------------------transforming dates in positions---------------
 //The format in the CSV, which d3 will read
 var parseDate = d3.timeParse("%Y-%m-%d");
-//console.log("parse", parseDate(data2["nodes"][3]))
-// Object.keys(data["nodes"]).forEach(function(key, index) {
-//     console.log(key, index, data["nodes"][index].x);
-//     test = parseDate.parse(data["nodes"][index].x);
-//     console.log("date", test);
-// });
 var startDate = new Date();
 var scale  = d3.scaleTime()
   .domain([new Date(2000, 0, 1), new Date(2018, 0, 2)]) //still needs to be made dynamically
@@ -150,7 +112,7 @@ var simulation = d3.forceSimulation()
 //we're going to add a charge to each node 
 //also going to add a centering force
 simulation
-    .on("tick", tick)
+    .on("tick", tickActions)
     .force("collide", d3.forceCollide(7));
   //   .force('x', d3.forceX().x(function(d) {
   // return scale(parseDate(d.date));}));
@@ -216,14 +178,7 @@ var node = svg.append("g")
       .attr("width", 10)
       .attr("height", 10)
       .style("fill", color);  
-
-
-
-
-//add tick instructions: 
-//var link_force =  d3.forceLink(links)
-//Add a links force to the simulation
-//Specify links  in d3.forceLink argument   
+  
 
 //collision detection: http://bl.ocks.org/rpgove/10603627
 
@@ -232,9 +187,12 @@ var label = svg.append("g")
       .selectAll("text")
       .data(nodes)
       .enter().append("text")
-      .style("font-size", "12px")
+      .style("font-size", "9px")
       .style("visibility", "hidden")
-      .text(function(d) { return d.id + " Degrees: " + d[degrees]; });  
+      .attr("transform", function(d) { return "translate (" + d.x +"," + d.y+ ") rotate(45))"})
+      .text(function(d) { return d.id; });  
+
+//label.attr("transform", function(d) { return "rotate(45)"})
 
 //-----------------------Hover functionality-------------------
 
@@ -271,8 +229,8 @@ function mouseOver(d){
       });
 
   link
-    .style('stroke-width', o => (o.source === d || o.target === d ? 1.5 : 0.5))
-    .style('stroke', o => (o.source === d || o.target === d ? "#0202ff" : "#E8E8E8"))
+    .style('stroke-width', o => (o.source === d || o.target === d ? 2.5 : 0.5));
+    //.style('stroke', o => (o.source === d || o.target === d ? "#848383" : "#E8E8E8"))
 
   $("#stichwort").text(query);
   $("#urteil").text(d.id);
@@ -334,7 +292,7 @@ function zoom_actions(){
     svg.attr("transform", d3.event.transform)
 }
           
-                
+///-----------------------Update on tick-------------------------              
 function tickActions() {
     //update circle positions each tick of the simulation 
     node
@@ -345,14 +303,6 @@ function tickActions() {
           //console.log(d.relevancy)
           return y(d[degrees]); });
 
-        //  node
-        // .attr("cx", function(d) { 
-        //   //console.log("date", d.date)
-        //   return d.x; })
-        // .attr("cy", function(d) { 
-        //   //console.log(d.relevancy)
-        //   return d.y; });
-    
     //update link positions 
     //simply tells one end of the line to follow one node around
     //and the other end of the line to follow the other node around
@@ -382,15 +332,24 @@ function tickActions() {
   function tick(d) {
   //console.log(simulation.alpha());
 
-    node.each(moveTowardDataPosition(simulation.alpha()));
+    //node.each(moveTowardDataPosition(simulation.alpha()));
 
-    node.each(collide(simulation.alpha()));
+    //node.each(collide(simulation.alpha()));
 
     //console.log(node);
 
     node.attr("cx", function(d) { /*console.log(scale(parseDate(d.date)), d.x);*/ return scale(parseDate(d.date)); })
         .attr("cy", function(d) { return d.y; });
   }
+
+    link
+        .attr("x1", function(d) { 
+          //console.log("d.source.date", d.source.date)
+          return scale(parseDate(d.source.date)); })
+        .attr("y1", function(d) { return y(d['source'][degrees]); })
+        .attr("x2", function(d) { return scale(parseDate(d.target.date)); })
+        .attr("y2", function(d) { return y(d['target'][degrees]); });
+
 
   function moveTowardDataPosition(alpha) {
     return function(d) {
