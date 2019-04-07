@@ -199,7 +199,7 @@ function mouseOver(d){
         if(d.properties.NAME == circle.data()[0].canton){
           return color(d.properties.NAME);
         } else{
-          return "#c9c9c9";
+          return "white";
         }
   });
 
@@ -316,7 +316,7 @@ var colDom = result.filter( onlyUnique ); // returns ['a', 1, 2, '1']
       .style("fill", color); 
 
   var g2 = svg2.append("g");
-  var offset = [width/2+50, height/2+100];
+  var offset = [width/2, height/2+100];
 
     //https://d3js.org/us-10m.v1.json
   // d3.json("static/cantons4.geojson", function(error, ch) {
@@ -325,7 +325,7 @@ var colDom = result.filter( onlyUnique ); // returns ['a', 1, 2, '1']
   var center = d3.geoCentroid(ch)
   var projection = d3.geoMercator()
     .center(center)
-    .scale(7000)
+    .scale(6500)
     .translate(offset);;
 
     var path = d3.geoPath()
@@ -336,8 +336,8 @@ var colDom = result.filter( onlyUnique ); // returns ['a', 1, 2, '1']
       .data(ch.features)
       .enter()
       .append("path")
-      .style("fill", "#c9c9c9")
-      .style("stroke", "white")
+      .style("fill", "white")
+      .style("stroke", "#c9c9c9")
       .attr("class", "canton")
       .attr("d", path)
    
