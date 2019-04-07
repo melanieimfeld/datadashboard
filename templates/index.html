@@ -9,6 +9,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
 <!--   <script src="{{ url_for('static', filename='data.js') }}"></script> -->
 </head>
 <style type="text/css">
@@ -18,7 +19,7 @@
   }
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #FFFEF7;
+  background-color: #f4f4f4;
   color:#4E4E4D;
 }
 .axis { 
@@ -30,6 +31,12 @@ body {
   stroke: #4E4E4D;
   stroke-width: 0.5px;
 }
+
+line{
+  stroke: #4E4E4D;
+  stroke-width: 0.5px;
+}
+
 
 .axis path{
   stroke: gray;
@@ -101,7 +108,8 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
     </div>
     <div class="col-lg-9 col-md-9">
   <!--     <h3>Visualisation</h3> -->
-      <div id="viz">
+   <div class="row">
+      <div  class="col-lg-6 col-md-6" style="background:white">
     <!--     <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="geschlecht">
           <label class="form-check-label" for="inlineCheckbox1">Geschlecht</label>
@@ -110,8 +118,15 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
         <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="kanton">
         <label class="form-check-label" for="inlineCheckbox2">Kanton</label>
       </div> -->
-      <select id="selectButton"></select>
+  <!--     <select id="selectButton"></select> -->
+        <h5>Court descisions ordered by date and Citation</h5>
         <svg></svg>
+
+      </div>
+      <div  class="col-lg-6 col-md-6" style="background:white">
+        <h5>Location of court descisions</h5>
+        <svg id="map"></svg>
+      </div>
       </div>
     </div>
   </div>
@@ -123,5 +138,5 @@ Kein Erfordernis einer Ermächtigung durch ein übergeordnetes Organ, wenn der s
 </script>
 
 </body>
-<script src="{{ url_for('static', filename='graph.js') }}"></script>
+<script src="{{ url_for('static', filename='graph_test.js') }}"></script>
 </html>

@@ -148,10 +148,12 @@ var node = svg.append("g")
         .attr("cx", function(d) { return scale(parseDate(d.date)); })
         .attr("cy", function(d) { return y(d[degrees]); })
         .style("fill", function(d){ return color(d.canton)})
+        // .text(function(d){return d.id;})
         .style('opacity', 0.5)
         .on('mouseover', mouseOver)
         .on('mouseout', mouseOut);
 
+  console.log("allnodes", d3.selectAll("circle"));
 
 //-------------------legend----------------
 
@@ -294,6 +296,8 @@ function zoom_actions(){
           
 ///-----------------------Update on tick-------------------------              
 function tickActions() {
+
+  
     //update circle positions each tick of the simulation 
     node
         .attr("cx", function(d) { 
@@ -388,3 +392,6 @@ function tickActions() {
       });
     };
   }
+
+
+
