@@ -13,7 +13,7 @@ Important files and folders:
 
 Used tools:
 * Beautiful Soup
-* D3
+* D3 v4
 * Flask
 * Bootstrap
 
