@@ -1,4 +1,4 @@
-# Flaskapp
+# Data dashboard with Flask
 Court Decision Data scraped in Python and visualized in an interactive dashboard.
 
 Important files and folders:
